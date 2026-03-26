@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>HEMIS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #eef2f7; --card: #fff; --text: #1a1a2e; --sub: #6b7280;
+      --accent: #3b5bdb; --purple: #7c3aed; --green: #16a34a; --pink: #e91e63;
+    }
+    html, body { height: 100%; background: #dde4ee; font-family: 'Nunito', sans-serif; -webkit-font-smoothing: antialiased; overflow: hidden; }
+
+    /* ── APP SHELL ─────────────────────────────── */
+    .app-viewport { width: 100%; max-width: 430px; height: 100vh; margin: 0 auto; overflow: hidden; position: relative; }
+    .app-wrap { display: flex; width: 300%; height: 100%; transition: transform 0.38s cubic-bezier(0.4,0,0.2,1); }
+    .app-wrap.at-home    { transform: translateX(0); }
+    .app-wrap.at-drawer  { transform: translateX(calc(-100% / 3)); }
+    .app-wrap.at-profile { transform: translateX(calc(-200% / 3)); }
+    .screen { width: calc(100% / 3); height: 100%; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; flex-shrink: 0; }
+
+    /* ── HOME ──────────────────────────────────── */
+    #screen-home { background: var(--bg); display: flex; flex-direction: column; padding-bottom: 80px; }
+
+    .header { background: linear-gradient(160deg,#1a6fd4 0%,#2196f3 55%,#42a5f5 100%); padding: 48px 20px 50px; position: relative; overflow: hidden; flex-shrink: 0; }
+    .header::before { content:''; position:absolute; bottom:-30px; left:0; right:0; height:60px; background:var(--bg); border-radius:50% 50% 0 0/30px 30px 0 0; }
+    .header-top { display:flex; align-items:center; justify-content:space-between; position:relative; z-index:1; }
+    .user-info { display:flex; align-items:center; gap:12px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+    .avatar-home { width:48px; height:48px; border-radius:50%; border:2.5px solid rgba(255,255,255,.7); object-fit:cover; background:rgba(255,255,255,.3); display:block; transition:transform .15s; }
+    .user-info:active .avatar-home { transform:scale(.93); }
+    .user-name { font-size:20px; font-weight:800; color:white; letter-spacing:-.3px; }
+    .qr-btn { width:40px; height:40px; background:rgba(255,255,255,.18); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; border:1.5px solid rgba(255,255,255,.3); }
+    .qr-btn svg { width:22px; height:22px; }
+    .search-wrap { margin-top:18px; position:relative; z-index:1; }
+    .search-box { width:100%; background:rgba(255,255,255,.97); border:none; border-radius:30px; padding:13px 20px 13px 48px; font-family:'Nunito',sans-serif; font-size:15px; color:#555; outline:none; box-shadow:0 4px 16px rgba(0,0,0,.12); }
+    .search-icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); color:#9ca3af; }
+    .search-icon svg { width:20px; height:20px; stroke:currentColor; stroke-width:2; fill:none; display:block; }
+
+    .content { padding:0 16px; display:flex; flex-direction:column; gap:20px; }
+    .big-cards { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:-4px; }
+    .big-card { border-radius:16px; padding:18px 16px; cursor:pointer; min-height:96px; display:flex; flex-direction:column; justify-content:flex-end; transition:transform .15s; }
+    .big-card:active { transform:scale(.97); }
+    .big-card.davomat   { background:linear-gradient(135deg,#1565c0,#1e88e5); box-shadow:0 6px 20px rgba(21,101,192,.35); }
+    .big-card.topshiriq { background:linear-gradient(135deg,#1a3a6e,#1565c0); box-shadow:0 6px 20px rgba(26,58,110,.35); }
+    .big-card-title { font-size:17px; font-weight:800; color:white; line-height:1.2; }
+    .big-card-sub { font-size:11.5px; color:rgba(255,255,255,.75); margin-top:4px; line-height:1.4; font-weight:500; }
+
+    .grid-section { background:var(--card); border-radius:18px; padding:6px 8px; box-shadow:0 2px 12px rgba(0,0,0,.06); }
+    .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; }
+    .grid-item { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px 8px 14px; gap:10px; cursor:pointer; border-radius:12px; transition:background .15s, transform .12s; -webkit-tap-highlight-color:transparent; }
+    .grid-item:active { background:#f0f4ff; transform:scale(.94); }
+    .grid-icon { width:46px; height:46px; border-radius:14px; background:#e8f0fe; display:flex; align-items:center; justify-content:center; }
+    .grid-icon svg { width:24px; height:24px; stroke:#2563eb; stroke-width:1.8; fill:none; }
+    .grid-label { font-size:11.5px; font-weight:700; color:var(--text); text-align:center; line-height:1.3; }
+    .grid-row-divider { height:1px; background:#f1f3f6; margin:2px 12px; }
+
+    .davomat-section { background:var(--card); border-radius:18px; padding:18px 16px; box-shadow:0 2px 12px rgba(0,0,0,.06); }
+    .davomat-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .davomat-title { font-size:17px; font-weight:800; color:var(--text); }
+    .davomat-title span { color:#6b7280; font-weight:600; }
+    .barchasi-link { font-size:14px; font-weight:700; color:var(--accent); cursor:pointer; }
+    .davomat-cards { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+    .davomat-card { background:#f8f9fb; border-radius:14px; padding:14px 10px 12px; display:flex; flex-direction:column; gap:4px; }
+    .davomat-num { font-size:26px; font-weight:800; line-height:1; }
+    .davomat-num.purple{color:var(--purple)} .davomat-num.green{color:var(--green)} .davomat-num.pink{color:var(--pink)}
+    .davomat-unit{font-size:13px;font-weight:700}
+    .davomat-unit.purple{color:var(--purple)} .davomat-unit.green{color:var(--green)} .davomat-unit.pink{color:var(--pink)}
+    .davomat-label { font-size:12px; font-weight:600; color:var(--sub); margin-top:2px; }
+
+    .bottom-nav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; background:white; border-top:1px solid #e5e7eb; display:flex; align-items:center; justify-content:space-around; padding:10px 0 18px; z-index:200; box-shadow:0 -4px 20px rgba(0,0,0,.07); }
+    .nav-item { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; flex:1; -webkit-tap-highlight-color:transparent; }
+    .nav-icon-wrap { width:44px; height:34px; display:flex; align-items:center; justify-content:center; border-radius:20px; transition:background .15s; }
+    .nav-item.active .nav-icon-wrap { background:#dbeafe; }
+    .nav-icon-wrap svg { width:22px; height:22px; stroke:#9ca3af; stroke-width:1.8; fill:none; }
+    .nav-item.active .nav-icon-wrap svg { stroke:var(--accent); }
+    .nav-label { font-size:11px; font-weight:700; color:#9ca3af; }
+    .nav-item.active .nav-label { color:var(--accent); }
+
+    /* ── DRAWER ────────────────────────────────── */
+    #screen-drawer { background:#1565c0; display:flex; flex-direction:column; }
+    .drawer-inner { flex:1; display:flex; flex-direction:column; padding:60px 0 0; min-height:100%; }
+    .drawer-user { display:flex; align-items:center; justify-content:space-between; padding:0 24px 28px; }
+    .drawer-user-left { display:flex; align-items:center; gap:14px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+    .drawer-avatar { width:68px; height:68px; border-radius:50%; border:2.5px solid rgba(255,255,255,.5); object-fit:cover; background:rgba(255,255,255,.25); display:block; transition:transform .18s; }
+    .drawer-user-left:active .drawer-avatar { transform:scale(.93); }
+    .drawer-user-name { font-size:18px; font-weight:800; color:white; }
+    .drawer-chevron svg { width:20px; height:20px; stroke:rgba(255,255,255,.6); stroke-width:2.2; fill:none; }
+    .drawer-contact { padding:0 24px 24px; display:flex; flex-direction:column; gap:12px; }
+    .drawer-contact-row { display:flex; align-items:center; gap:12px; color:rgba(255,255,255,.85); font-size:14px; font-weight:600; }
+    .drawer-contact-row svg { width:18px; height:18px; stroke:rgba(255,255,255,.7); stroke-width:2; fill:none; flex-shrink:0; }
+    .drawer-menu { flex:1; padding:0 0 10px; }
+    .drawer-item { display:flex; align-items:center; justify-content:space-between; padding:17px 24px; cursor:pointer; transition:background .15s; -webkit-tap-highlight-color:transparent; }
+    .drawer-item:active { background:rgba(255,255,255,.1); }
+    .drawer-item-text { font-size:16px; font-weight:700; color:white; }
+    .drawer-item-chev svg { width:18px; height:18px; stroke:rgba(255,255,255,.5); stroke-width:2.2; fill:none; }
+    .drawer-divider { height:1px; background:rgba(255,255,255,.12); margin:2px 24px; }
+    .drawer-logout { display:flex; align-items:center; gap:14px; padding:20px 24px 48px; cursor:pointer; color:rgba(255,255,255,.85); font-size:16px; font-weight:700; -webkit-tap-highlight-color:transparent; }
+    .drawer-logout:active { opacity:.7; }
+    .drawer-logout svg { width:22px; height:22px; stroke:rgba(255,255,255,.7); stroke-width:2; fill:none; }
+
+    /* ── PROFILE EDIT ──────────────────────────── */
+    #screen-profile { background:#f0f4f8; display:flex; flex-direction:column; }
+    .prof-inner { flex:1; display:flex; flex-direction:column; padding-bottom:32px; }
+    .prof-header { display:flex; align-items:center; gap:12px; padding:52px 24px 20px; flex-shrink:0; }
+    .prof-back { width:40px; height:40px; border-radius:12px; background:white; border:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.06); transition:background .15s,transform .15s; flex-shrink:0; -webkit-tap-highlight-color:transparent; }
+    .prof-back:active { transform:scale(.93); background:#dbeafe; }
+    .prof-back svg { width:18px; height:18px; stroke:#1a1a2e; stroke-width:2.2; fill:none; }
+    .prof-title { font-size:18px; font-weight:800; color:#0f172a; letter-spacing:-.3px; }
+    .prof-avatar-card { margin:0 20px 8px; background:white; border-radius:20px; padding:20px; display:flex; align-items:center; gap:16px; box-shadow:0 4px 24px rgba(37,99,235,.08); border:1px solid #e2e8f0; }
+    .prof-avatar-wrap { position:relative; flex-shrink:0; }
+    .prof-avatar-img { width:72px; height:72px; border-radius:20px; object-fit:cover; border:3px solid #dbeafe; display:block; background:#dbeafe; cursor:pointer; transition:transform .18s; -webkit-tap-highlight-color:transparent; }
+    .prof-avatar-img:active { transform:scale(.92); }
+    .prof-avatar-badge { position:absolute; bottom:-4px; right:-4px; width:24px; height:24px; border-radius:50%; background:#2563eb; border:2px solid white; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+    .prof-avatar-badge svg { width:12px; height:12px; stroke:white; stroke-width:2.2; fill:none; }
+    .prof-avatar-info { flex:1; min-width:0; }
+    .prof-avatar-name { font-size:15px; font-weight:800; color:#0f172a; line-height:1.35; }
+    .prof-avatar-role { margin-top:4px; display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color:#2563eb; background:#dbeafe; padding:3px 10px; border-radius:20px; }
+    .prof-avatar-role::before { content:''; width:6px; height:6px; border-radius:50%; background:#2563eb; flex-shrink:0; }
+    .prof-form { padding:8px 20px 32px; display:flex; flex-direction:column; gap:14px; }
+    .prof-section-label { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.8px; color:#6b7280; margin-top:6px; margin-bottom:-4px; padding-left:4px; }
+    .prof-input-group { position:relative; }
+    .prof-input-label { position:absolute; top:13px; left:16px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#6b7280; pointer-events:none; }
+    .prof-input-field { width:100%; background:white; border:1.5px solid #e2e8f0; border-radius:16px; padding:34px 16px 14px; font-family:'Nunito',sans-serif; font-size:15px; font-weight:600; color:#0f172a; outline:none; transition:border-color .2s,box-shadow .2s; -webkit-appearance:none; }
+    .prof-input-field:focus { border-color:#2563eb; box-shadow:0 0 0 4px rgba(37,99,235,.1); }
+    .prof-input-field.has-icon { padding-right:50px; }
+    .prof-input-icon { position:absolute; right:16px; top:50%; transform:translateY(-50%); cursor:pointer; color:#6b7280; padding:4px; border-radius:8px; }
+    .prof-input-icon svg { width:20px; height:20px; stroke:currentColor; stroke-width:1.8; fill:none; display:block; }
+    .prof-divider { height:1px; background:#e2e8f0; margin:4px 0; }
+    .prof-btn-save { width:100%; padding:18px; border-radius:16px; background:#2563eb; color:white; font-family:'Nunito',sans-serif; font-size:16px; font-weight:800; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; margin-top:6px; transition:background .2s,transform .15s; box-shadow:0 6px 20px rgba(37,99,235,.28); }
+    .prof-btn-save:active { transform:scale(.97); background:#1d4ed8; }
+    .prof-btn-save svg { width:18px; height:18px; stroke:white; stroke-width:2.2; fill:none; }
+
+    /* ── AVATAR ZOOM OVERLAY ──────────────────── */
+    .av-overlay { position:fixed; inset:0; background:rgba(0,0,0,0); z-index:999; display:flex; align-items:center; justify-content:center; pointer-events:none; transition:background .32s; }
+    .av-overlay.open { background:rgba(0,0,0,.85); pointer-events:all; }
+    .av-overlay-img { width:200px; height:200px; border-radius:50%; object-fit:cover; border:3px solid rgba(255,255,255,.9); box-shadow:0 8px 60px rgba(0,0,0,.6); transform:scale(0); opacity:0; transition:transform .4s cubic-bezier(.34,1.56,.64,1), opacity .25s; cursor:pointer; }
+    .av-overlay.open .av-overlay-img { transform:scale(1); opacity:1; }
+    .av-overlay-close { position:absolute; top:48px; right:20px; width:38px; height:38px; background:rgba(255,255,255,.15); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transition:opacity .3s .15s; }
+    .av-overlay.open .av-overlay-close { opacity:1; }
+    .av-overlay-close svg { width:20px; height:20px; stroke:white; stroke-width:2.2; fill:none; }
+
+    /* ── TOAST ──────────────────────────────────── */
+    .toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(80px); background:#0f172a; color:white; padding:13px 22px; border-radius:40px; font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; z-index:1000; white-space:nowrap; box-shadow:0 8px 32px rgba(0,0,0,.2); transition:transform .35s cubic-bezier(.16,1,.3,1),opacity .3s; opacity:0; }
+    .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+    .toast svg { width:16px; height:16px; stroke:#4ade80; stroke-width:2.5; fill:none; }
+  </style>
+</head>
+<body>
+
+<div class="app-viewport">
+  <div class="app-wrap at-home" id="appWrap">
+
+    <!-- ════════════════════════════════════════
+         SCREEN 1 — HOME
+    ════════════════════════════════════════ -->
+    <div class="screen" id="screen-home">
+
+      <div class="header">
+        <div class="header-top">
+          <div class="user-info" onclick="goTo('drawer')">
+            <img class="avatar-home" src="my.png" alt="av" onerror="this.style.background='rgba(255,255,255,.4)'"/>
+            <span class="user-name">J.Sadullayev</span>
+          </div>
+          <div class="qr-btn">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="7" height="7" rx="1" stroke="white" stroke-width="1.8"/>
+              <rect x="14" y="3" width="7" height="7" rx="1" stroke="white" stroke-width="1.8"/>
+              <rect x="3" y="14" width="7" height="7" rx="1" stroke="white" stroke-width="1.8"/>
+              <rect x="5" y="5" width="3" height="3" fill="white"/>
+              <rect x="16" y="5" width="3" height="3" fill="white"/>
+              <rect x="5" y="16" width="3" height="3" fill="white"/>
+              <path d="M14 14h2v2h-2zM18 14h3M18 17v4M14 18h2M14 21h5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="search-wrap">
+          <span class="search-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg></span>
+          <input class="search-box" type="text" placeholder="Qidiruv..."/>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="big-cards">
+          <div class="big-card davomat">
+            <div class="big-card-title">Davomat</div>
+            <div class="big-card-sub">Vaqti va fanlarni ko'rish</div>
+          </div>
+          <div class="big-card topshiriq">
+            <div class="big-card-title">TOPSHIRIQLAR</div>
+            <div class="big-card-sub">Muddati va vazifalarni tekshir...</div>
+          </div>
+        </div>
+
+        <div class="grid-section">
+          <div class="grid-3">
+            <div class="grid-item"><div class="grid-icon"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><span class="grid-label">O'zlashtirish</span></div>
+            <div class="grid-item"><div class="grid-icon"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><polyline points="3 6 4 7 6 5"/><polyline points="3 12 4 13 6 11"/><polyline points="3 18 4 19 6 17"/></svg></div><span class="grid-label">Imtihonlar</span></div>
+            <div class="grid-item"><div class="grid-icon"><svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></div><span class="grid-label">Road map</span></div>
+          </div>
+          <div class="grid-row-divider"></div>
+          <div class="grid-3">
+            <div class="grid-item"><div class="grid-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><rect x="7" y="14" width="3" height="3" rx=".5" fill="#2563eb" stroke="none"/></svg></div><span class="grid-label">Imtihonlar jadvali</span></div>
+            <div class="grid-item"><div class="grid-icon"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div><span class="grid-label">Hujjatlar</span></div>
+            <div class="grid-item"><div class="grid-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 9l10 13L22 9z"/><line x1="2" y1="9" x2="22" y2="9"/></svg></div><span class="grid-label">Career Edu</span></div>
+          </div>
+          <div class="grid-row-divider"></div>
+          <div class="grid-3">
+            <div class="grid-item"><div class="grid-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg></div><span class="grid-label">Kontrakt Edu</span></div>
+            <div class="grid-item"><div class="grid-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3" stroke-linecap="round"/></svg></div><span class="grid-label">So'rovnoma</span></div>
+            <div class="grid-item"><div class="grid-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></svg></div><span class="grid-label">Moliyaviy to'lov</span></div>
+          </div>
+        </div>
+
+        <div class="davomat-section">
+          <div class="davomat-header">
+            <div class="davomat-title">Davomat — <span>6-semestr</span></div>
+            <span class="barchasi-link">Barchasi</span>
+          </div>
+          <div class="davomat-cards">
+            <div class="davomat-card"><div><span class="davomat-num purple">18</span><span class="davomat-unit purple"> soat</span></div><div class="davomat-label">Jami</div></div>
+            <div class="davomat-card"><div><span class="davomat-num green">0</span><span class="davomat-unit green"> soat</span></div><div class="davomat-label">Sababli</div></div>
+            <div class="davomat-card"><div><span class="davomat-num pink">18</span><span class="davomat-unit pink"> soat</span></div><div class="davomat-label">Sababsiz</div></div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="bottom-nav">
+        <div class="nav-item active"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><span class="nav-label">Asosiy</span></div>
+        <div class="nav-item"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="nav-label">Dars jadvali</span></div>
+        <div class="nav-item"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5z"/><path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8z"/><path d="M5 17l.5 1.5L7 19l-1.5.5L5 21l-.5-1.5L3 19l1.5-.5z"/></svg></div><span class="nav-label">HEMIS AI</span></div>
+        <div class="nav-item"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><span class="nav-label">Fanlar</span></div>
+        <div class="nav-item"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><span class="nav-label">Barchasi</span></div>
+      </nav>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         SCREEN 2 — DRAWER
+    ════════════════════════════════════════ -->
+    <div class="screen" id="screen-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-user">
+          <div class="drawer-user-left" onclick="openAv()">
+            <img class="drawer-avatar" src="my.png" alt="av" onerror="this.style.background='rgba(255,255,255,.3)'"/>
+            <div class="drawer-user-name">Sadullayev Javoxir</div>
+          </div>
+          <div class="drawer-chevron"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="drawer-contact">
+          <div class="drawer-contact-row"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.46 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 17z"/></svg>+998939836111</div>
+          <div class="drawer-contact-row"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>javokhir06062005@gmail.com</div>
+        </div>
+        <div class="drawer-menu">
+          <div class="drawer-item"><span class="drawer-item-text">Shaxsiy ma'lumotlar</span><span class="drawer-item-chev"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+          <div class="drawer-divider"></div>
+          <div class="drawer-item" onclick="goTo('profile')"><span class="drawer-item-text">Profilni tahrirlash</span><span class="drawer-item-chev"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+          <div class="drawer-divider"></div>
+          <div class="drawer-item"><span class="drawer-item-text">Ilova tilini o'zgartirish</span><span class="drawer-item-chev"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+          <div class="drawer-divider"></div>
+          <div class="drawer-item"><span class="drawer-item-text">Yordam (telegram orqali)</span><span class="drawer-item-chev"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+          <div class="drawer-divider"></div>
+          <div class="drawer-item"><span class="drawer-item-text">Keshni tozalash</span><span class="drawer-item-chev"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+          <div class="drawer-divider"></div>
+          <div class="drawer-item"><span class="drawer-item-text">Ilova haqida</span><span class="drawer-item-chev"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+        </div>
+        <div class="drawer-logout"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Profildan chiqish</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         SCREEN 3 — PROFILE EDIT
+    ════════════════════════════════════════ -->
+    <div class="screen" id="screen-profile">
+      <div class="prof-inner">
+        <div class="prof-header">
+          <div class="prof-back" onclick="goTo('drawer')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+          <span class="prof-title">Profilni tahrirlash</span>
+        </div>
+        <div class="prof-avatar-card">
+          <div class="prof-avatar-wrap">
+            <img class="prof-avatar-img" src="my.png" alt="av" onclick="openAv()" onerror="this.style.background='#dbeafe'"/>
+            <div class="prof-avatar-badge"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          </div>
+          <div class="prof-avatar-info">
+            <div class="prof-avatar-name">Sadullayev Javoxir<br/>Zafarbek O'g'li</div>
+            <div class="prof-avatar-role">Faol</div>
+          </div>
+        </div>
+        <div class="prof-form">
+          <div class="prof-section-label">Asosiy ma'lumotlar</div>
+          <div class="prof-input-group">
+            <label class="prof-input-label">Email</label>
+            <input class="prof-input-field" type="email" value="javokhir06062005@gmail.com"/>
+          </div>
+          <div class="prof-input-group">
+            <label class="prof-input-label">Telefon raqami</label>
+            <input class="prof-input-field" type="tel" value="+998 93 983 61 11"/>
+          </div>
+          <div class="prof-divider"></div>
+          <div class="prof-section-label">Parolni o'zgartirish</div>
+          <div class="prof-input-group">
+            <label class="prof-input-label">Yangi parol</label>
+            <input class="prof-input-field has-icon" type="password" id="pw1" autocomplete="new-password"/>
+            <span class="prof-input-icon" onclick="togglePw('pw1',this)"><svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span>
+          </div>
+          <div class="prof-input-group">
+            <label class="prof-input-label">Parolni tasdiqlang</label>
+            <input class="prof-input-field has-icon" type="password" id="pw2" autocomplete="new-password"/>
+            <span class="prof-input-icon" onclick="togglePw('pw2',this)"><svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span>
+          </div>
+          <button class="prof-btn-save" onclick="showToast()">
+            <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Saqlash
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /app-wrap -->
+</div><!-- /app-viewport -->
+
+<!-- AVATAR OVERLAY -->
+<div class="av-overlay" id="avOverlay" onclick="closeAv()">
+  <div class="av-overlay-close" onclick="closeAv()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  <img class="av-overlay-img" src="my.png" alt="avatar" onclick="event.stopPropagation()"/>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  Ma'lumotlar saqlandi!
+</div>
+
+<script>
+  const wrap = document.getElementById('appWrap');
+
+  function goTo(s) {
+    wrap.className = 'app-wrap at-' + s;
+  }
+
+  function openAv() {
+    document.getElementById('avOverlay').classList.add('open');
+  }
+  function closeAv() {
+    document.getElementById('avOverlay').classList.remove('open');
+  }
+
+  function togglePw(id, btn) {
+    const inp = document.getElementById(id);
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.innerHTML = show
+      ? `<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`
+      : `<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+  }
+
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // Swipe back gesture
+  let tx = 0;
+  document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (dx > 55) {
+      if (wrap.className.includes('at-drawer'))  goTo('home');
+      if (wrap.className.includes('at-profile')) goTo('drawer');
+    }
+  }, {passive:true});
+</script>
+</body>
+</html>
